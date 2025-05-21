@@ -2,6 +2,9 @@
 log/
 log_tensorboard/
 saved/
+RecDatasets/*
+dataset/
+conversion_tools/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

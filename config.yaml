@@ -1,17 +1,28 @@
+# GPU
+gpu_id: '0'
+
+# Dataset config
+USER_ID_FIELD: session_id
+load_col: {
+    'inter': ['session_id', 'item_id', 'timestamp']
+}
+
+
+
 # model config
 embedding_size: 64
 
 # Training and evaluation config
-epochs: 20
-train_batch_size: 4096
-eval_batch_size: 4096
+epochs: 200
+train_batch_size: 256
+eval_batch_size: 256
 train_neg_sample_args:
 eval_args:
     group_by: user
     order: TO
     split: {'RS': [0.8,0.1,0.1]}
     mode: full
-metrics: ['Recall', 'MRR', 'NDCG', 'Hit', 'Precision']
+metrics: ['MRR', 'NDCG']
 topk: 10
 valid_metric: MRR@10
 metric_decimal_place: 4
