@@ -1,0 +1,18 @@
+{
+    "best_valid_score": 0.534,
+    "valid_score_bigger": true,
+    "best_valid_result": {
+        "recall@10": 0.8051,
+        "mrr@10": 0.534,
+        "ndcg@10": 0.5994,
+        "hit@10": 0.8051,
+        "precision@10": 0.0805
+    },
+    "test_result": {
+        "recall@10": 0.7647,
+        "mrr@10": 0.4952,
+        "ndcg@10": 0.56,
+        "hit@10": 0.7647,
+        "precision@10": 0.0765
+    }
+}

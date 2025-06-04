@@ -3,9 +3,7 @@ gpu_id: '0'
 
 # Dataset config
 USER_ID_FIELD: session_id
-load_col: {
-    'inter': ['session_id', 'item_id', 'timestamp']
-}
+
 
 
 
