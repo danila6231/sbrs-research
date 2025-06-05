@@ -4,7 +4,7 @@
 # @Email   : hui.wang@ruc.edu.cn
 
 r"""
-SASRecF
+SASRecFPlus
 ################################################
 """
 
@@ -13,17 +13,45 @@ from torch import nn
 
 from recbole.model.abstract_recommender import SequentialRecommender
 from recbole.model.loss import BPRLoss
-from recbole.model.layers import TransformerEncoder, FeatureSeqEmbLayer
+from recbole.model.layers import TransformerEncoder, FeatureSeqEmbLayer, ContextSeqEmbAbstractLayer
 
+class UserFeatureSeqEmbLayer(ContextSeqEmbAbstractLayer):
+    """For feature-rich sequential recommenders, return item features embedding matrices according to
+    selected features."""
 
-class SASRecF(SequentialRecommender):
+    def __init__(
+        self, dataset, embedding_size, user_selected_features, pooling_mode, device
+    ):
+        super(FeatureSeqEmbLayer, self).__init__()
+
+        self.device = device
+        self.embedding_size = embedding_size
+        self.dataset = dataset
+        self.user_feat = self.dataset.get_user_feature().to(self.device)
+        print("user_feat", self.user_feat)
+        self.item_feat = None
+
+        self.field_names = {"user": user_selected_features}
+
+        self.types = ["user"]
+        self.pooling_mode = pooling_mode
+        try:
+            assert self.pooling_mode in ["mean", "max", "sum"]
+        except AssertionError:
+            raise AssertionError("Make sure 'pooling_mode' in ['mean', 'max', 'sum']!")
+        self.get_fields_name_dim()
+        self.get_embedding()
+
+class SASRecFPlus(SequentialRecommender):
     """This is an extension of SASRec, which concatenates item representations and item attribute representations
     as the input to the model.
     """
 
     def __init__(self, config, dataset):
-        super(SASRecF, self).__init__(config, dataset)
+        super(SASRecFPlus, self).__init__(config, dataset)
 
+        self.n_users = dataset.user_num
+        self.n_items = dataset.item_num
         # load parameters info
         self.n_layers = config['n_layers']
         self.n_heads = config['n_heads']
@@ -35,18 +63,26 @@ class SASRecF(SequentialRecommender):
         self.layer_norm_eps = config['layer_norm_eps']
 
         self.selected_features = config['selected_features']
+        self.user_selected_features = config['user_selected_features']
         self.pooling_mode = config['pooling_mode']
         self.device = config['device']
         self.num_feature_field = len(config['selected_features'])
+        self.num_user_feature_field = len(config['user_selected_features'])
 
         self.initializer_range = config['initializer_range']
         self.loss_type = config['loss_type']
 
         # define layers and loss
         self.item_embedding = nn.Embedding(self.n_items, self.hidden_size, padding_idx=0)
+        self.user_embedding = nn.Embedding(self.n_users, self.hidden_size, padding_idx=0)
         
-        self.position_embedding = nn.Embedding(self.max_seq_length, self.hidden_size)
+        self.position_embedding = nn.Embedding(self.max_seq_length + 1, self.hidden_size)
+        
         self.feature_embed_layer = FeatureSeqEmbLayer(dataset, self.hidden_size, self.selected_features,
+                                                      self.pooling_mode, self.device)
+        
+        print("feature_embed_layer.item_feat", self.feature_embed_layer.item_feat)
+        self.user_feature_embed_layer = UserFeatureSeqEmbLayer(dataset, self.hidden_size, self.user_selected_features,
                                                       self.pooling_mode, self.device)
 
         self.trm_encoder = TransformerEncoder(n_layers=self.n_layers, n_heads=self.n_heads,
@@ -98,8 +134,12 @@ class SASRecF(SequentialRecommender):
         return extended_attention_mask
 
 
-    def forward(self, item_seq, item_seq_len):
+    def forward(self, user, item_seq, item_seq_len):
         item_emb = self.item_embedding(item_seq)
+        user_emb = self.user_embedding(user).unsqueeze(1)
+        print(user.unsqueeze(1).shape)
+        print(item_seq.shape)
+        
 
         # position embedding
         position_ids = torch.arange(item_seq.size(1), dtype=torch.long, device=item_seq.device)
@@ -115,6 +155,22 @@ class SASRecF(SequentialRecommender):
             feature_table.append(sparse_embedding)
         if dense_embedding is not None:
             feature_table.append(dense_embedding)
+        
+        print("sparse_embedding", sparse_embedding.shape)
+        print("dense_embedding", dense_embedding)
+        user_sparse_embedding, user_dense_embedding = self.user_feature_embed_layer(None, user.unsqueeze(1))
+        user_sparse_embedding = user_sparse_embedding['user']
+        user_dense_embedding = user_dense_embedding['user']
+        print("user_sparse_embedding", user_sparse_embedding.shape)
+        print("user_sparse_embedding", user_sparse_embedding)
+        print("user_dense_embedding", user_dense_embedding)
+        exit(1)
+        # concat the sparse embedding and float embedding
+        user_feature_table = []
+        if user_sparse_embedding is not None:
+            user_feature_table.append(user_sparse_embedding)
+        if user_dense_embedding is not None:
+            user_feature_table.append(user_dense_embedding)
 
         feature_table = torch.cat(feature_table, dim=-2)
         table_shape = feature_table.shape
@@ -136,9 +192,10 @@ class SASRecF(SequentialRecommender):
 
 
     def calculate_loss(self, interaction):
+        user = interaction[self.USER_ID]
         item_seq = interaction[self.ITEM_SEQ]
         item_seq_len = interaction[self.ITEM_SEQ_LEN]
-        seq_output = self.forward(item_seq, item_seq_len)
+        seq_output = self.forward(user, item_seq, item_seq_len)
         pos_items = interaction[self.POS_ITEM_ID]
         if self.loss_type == 'BPR':
             neg_items = interaction[self.NEG_ITEM_ID]
@@ -158,8 +215,9 @@ class SASRecF(SequentialRecommender):
     def predict(self, interaction):
         item_seq = interaction[self.ITEM_SEQ]
         item_seq_len = interaction[self.ITEM_SEQ_LEN]
+        user = interaction[self.USER_ID]
         test_item = interaction[self.ITEM_ID]
-        seq_output = self.forward(item_seq, item_seq_len)
+        seq_output = self.forward(user, item_seq, item_seq_len)
         test_item_emb = self.item_embedding(test_item)
         scores = torch.mul(seq_output, test_item_emb).sum(dim=1)
         return scores
@@ -168,7 +226,8 @@ class SASRecF(SequentialRecommender):
     def full_sort_predict(self, interaction):
         item_seq = interaction[self.ITEM_SEQ]
         item_seq_len = interaction[self.ITEM_SEQ_LEN]
-        seq_output = self.forward(item_seq, item_seq_len)
+        user = interaction[self.USER_ID]
+        seq_output = self.forward(user, item_seq, item_seq_len)
         test_items_emb = self.item_embedding.weight
         scores = torch.matmul(seq_output, test_items_emb.transpose(0, 1))  # [B, item_num]
         return scores

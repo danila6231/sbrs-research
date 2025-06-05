@@ -1,6 +1,7 @@
 from recbole.quick_start import run_recbole
 import torch
 import json
+from models.model import SASRecFPlus
 
 parameter_dict = {
     'use_gpu': True,
@@ -13,9 +14,9 @@ parameter_dict = {
     'seq_len': {'item_id_list': 200},
     'load_col': {
         'inter': ['user_id', 'item_id', 'timestamp'],
-        'item': ['item_id', 'genre']
+        # 'item': ['item_id', 'genre']
     },
-    'selected_features': ['genre'],
+    # 'selected_features': ['genre'],
     'embedding_size': 64,
     'epochs': 200,
     'train_batch_size': 4096,
@@ -32,8 +33,10 @@ parameter_dict = {
     }
 }
 
+model = SASRecFPlus(config=parameter_dict, dataset='ml-1m')
+
 result = run_recbole(
-    model='SASRecF',
+    model= SASRecFPlus(),
     dataset='ml-1m',
     config_dict=parameter_dict
 )
