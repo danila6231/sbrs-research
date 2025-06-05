@@ -77,20 +77,21 @@ class SASRecFPlus(SequentialRecommender):
         # define layers and loss
         self.item_embedding = nn.Embedding(self.n_items, self.hidden_size, padding_idx=0)
         self.user_embedding = nn.Embedding(self.n_users, self.hidden_size, padding_idx=0)
-        
         self.position_embedding = nn.Embedding(self.max_seq_length + 1, self.hidden_size)
         
-        self.feature_embed_layer = UltimateFeatureSeqEmbLayer(
-            dataset,
-            self.hidden_size,
-            self.selected_item_features,
-            self.selected_user_features,
-            self.pooling_mode,
-            self.device
-        )
-        
-        # self.user_feature_embed_layer = UserFeatureSeqEmbLayer(dataset, self.hidden_size, self.user_selected_features,
-        #                                               self.pooling_mode, self.device)
+        # Only create feature embedding layer if features are selected
+        if self.num_item_feature_field > 0 or self.num_user_feature_field > 0:
+            self.feature_embed_layer = UltimateFeatureSeqEmbLayer(
+                dataset,
+                self.hidden_size,
+                self.selected_item_features,
+                self.selected_user_features,
+                self.pooling_mode,
+                self.device
+            )
+            # Now concat layer input size is 2*hidden_size (original + averaged features)
+            self.item_concat_layer = nn.Linear(self.hidden_size * 2, self.hidden_size)
+            self.user_concat_layer = nn.Linear(self.hidden_size * 2, self.hidden_size)
 
         self.trm_encoder = TransformerEncoder(n_layers=self.n_layers, n_heads=self.n_heads,
                                               hidden_size=self.hidden_size, inner_size=self.inner_size,
@@ -98,8 +99,6 @@ class SASRecFPlus(SequentialRecommender):
                                               attn_dropout_prob=self.attn_dropout_prob,
                                               hidden_act=self.hidden_act, layer_norm_eps=self.layer_norm_eps)
 
-        self.item_concat_layer = nn.Linear(self.hidden_size * (1 + self.num_item_feature_field), self.hidden_size)
-        self.user_concat_layer = nn.Linear(self.hidden_size * (1 + self.num_user_feature_field), self.hidden_size)
         self.LayerNorm = nn.LayerNorm(self.hidden_size, eps=self.layer_norm_eps)
         self.dropout = nn.Dropout(self.hidden_dropout_prob)
 
@@ -146,52 +145,49 @@ class SASRecFPlus(SequentialRecommender):
             feature_table.append(sparse_embedding)
         if dense_embedding is not None:
             feature_table.append(dense_embedding)
-        feature_table = torch.cat(feature_table, dim=-2)
-        table_shape = feature_table.shape
-        feat_num, embedding_size = table_shape[-2], table_shape[-1]
-        feature_emb = feature_table.view(table_shape[:-2] + (feat_num * embedding_size,))
-        input_concat = torch.cat((emb, feature_emb), -1)  # [B 1+field_num*H]
+        
+        # If no features are present, return the original embedding
+        if len(feature_table) == 0:
+            return emb
+            
+        # Concatenate all features along the last dimension
+        feature_table = torch.cat(feature_table, dim=-2)  # [B, L, num_features, H]
+        
+        # Average across the features dimension to maintain hidden size
+        feature_emb = torch.mean(feature_table, dim=-2)  # [B, L, H]
+        
+        # Concatenate with original embedding
+        input_concat = torch.cat((emb, feature_emb), -1)  # [B, L, 2*H]
         return input_concat
 
     def forward(self, user, item_seq, item_seq_len):
         item_emb = self.item_embedding(item_seq)
         user_emb = self.user_embedding(user).unsqueeze(1)
-        # print(user.unsqueeze(1).shape)
-        # print(item_seq.shape)
-        
 
         # position embedding
         position_ids = torch.arange(item_seq.size(1) + 1, dtype=torch.long, device=item_seq.device)
-        # print("position_ids", position_ids)
         position_ids = position_ids.unsqueeze(0).expand(item_seq.size(0), item_seq.size(1) + 1)
-        # print("position_ids", position_ids)
         position_embedding = self.position_embedding(position_ids)
-        # print("position_embedding", position_embedding.shape)
-        # exit()
 
-        sparse_embedding, dense_embedding = self.feature_embed_layer(user.unsqueeze(1), item_seq)
-        item_sparse_embedding = sparse_embedding['item']
-        item_dense_embedding = dense_embedding['item']
-        user_sparse_embedding = sparse_embedding['user']
-        user_dense_embedding = dense_embedding['user']
-        # print("item_sparse_embedding", item_sparse_embedding.shape)
-        # print("item_dense_embedding", item_dense_embedding.shape)
-        # print("user_sparse_embedding", user_sparse_embedding.shape)
-        # print("user_dense_embedding", user_dense_embedding.shape)
-        # concat the sparse embedding and float embedding
-        item_input_concat = self._concat_features(item_emb, item_sparse_embedding, item_dense_embedding)
-        user_input_concat = self._concat_features(user_emb, user_sparse_embedding, user_dense_embedding)
-        
-        # concat the sparse embedding and float embedding
-        # user_feature_table = []
-        # if user_sparse_embedding is not None:
-        #     user_feature_table.append(user_sparse_embedding)
-        # if user_dense_embedding is not None:
-        #     user_feature_table.append(user_dense_embedding)
+        if len(self.selected_item_features) > 0 or len(self.selected_user_features) > 0:
+            sparse_embedding, dense_embedding = self.feature_embed_layer(user.unsqueeze(1), item_seq)
+            item_sparse_embedding = sparse_embedding['item']
+            item_dense_embedding = dense_embedding['item']
+            user_sparse_embedding = sparse_embedding['user']
+            user_dense_embedding = dense_embedding['user']
+            
+            item_input_concat = self._concat_features(item_emb, item_sparse_embedding, item_dense_embedding)
+            user_input_concat = self._concat_features(user_emb, user_sparse_embedding, user_dense_embedding)
+            
+            print("item_input_concat", item_input_concat.shape)
+            print("user_input_concat", user_input_concat.shape)
+            item_input_emb = self.item_concat_layer(item_input_concat)
+            user_input_emb = self.user_concat_layer(user_input_concat)
+        else:
+            # If no features are selected, use the original embeddings
+            item_input_emb = item_emb
+            user_input_emb = user_emb
 
-        item_input_emb = self.item_concat_layer(item_input_concat)
-        user_input_emb = self.user_concat_layer(user_input_concat)
-        
         input_emb = torch.cat([user_input_emb, item_input_emb], dim=1)
         
         input_emb = input_emb + position_embedding

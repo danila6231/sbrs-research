@@ -1,15 +1,47 @@
 from logging import getLogger
 from recbole.utils import init_logger, init_seed
 from recbole.trainer import Trainer
-from models.model import SASRecFPlus
+from models.sas_rec_f_plus import SASRecFPlus
 from recbole.config import Config
 from recbole.data import create_dataset, data_preparation
 
 parameter_dict = {
+    # ENVIRONMENT
     'use_gpu': True,
-    'state': 'INFO',
     'gpu_id': 0,
-    # model parameters
+    'state': 'INFO',
+    'reproducibility': True,
+    'seed': 2020,
+    'data_path': 'dataset/',
+    'show_progress': False,
+    # DATA
+    'field_separator': '\t',
+    'load_col': {
+        'inter': ['user_id', 'item_id', 'timestamp'],
+        'item': ['item_id', 'genre', 'release_year'],
+        'user': ['user_id', 'gender', 'age', 'occupation']
+    },
+    'MAX_ITEM_LIST_LENGTH': 50,
+    # TRAINING
+    'epochs': 200,
+    'train_batch_size': 128,
+    'train_neg_sample_args': None,
+    'enable_amp': True,
+    # EVALUATION
+
+    'eval_args': {
+        'group_by': 'user',
+        'order': 'TO',
+        'split': {'LS': 'valid_and_test'},
+        'mode': 'uni100'
+    },
+    'metrics': ['NDCG', 'MRR', 'Hit'],
+    'valid_metric': 'NDCG@10',
+    'topk': 10,
+    'metric_decimal_place': 4,
+    'eval_batch_size': 128,
+    # MODEL
+    'embedding_size': 64,
     'hidden_size': 64,
     'inner_size': 256,
     'n_layers': 2,
@@ -21,35 +53,13 @@ parameter_dict = {
     'pooling_mode': 'sum',
     'hidden_dropout_prob': 0.2,
     'attn_dropout_prob': 0.2,
-    'enable_amp': True,
-    'train_neg_sample_args': None,
-    'MAX_ITEM_LIST_LENGTH': 200,
-    'load_col': {
-        'inter': ['user_id', 'item_id', 'timestamp'],
-        'item': ['item_id', 'genre', 'release_year'],
-        'user': ['user_id', 'gender', 'age', 'occupation']
-    },
-    'selected_item_features': [],
-    'selected_user_features': ['age'],
-    'embedding_size': 64,
-    'epochs': 200,
-    'train_batch_size': 128,
-    'eval_batch_size': 128,
-    'eval_args': {
-        'group_by': 'user',
-        'order': 'TO',
-        'split': {'LS': 'valid_and_test'},
-        'mode': 'uni100',
-        'metrics': ['NDCG'],
-        'topk': 10,
-        'metric_decimal_place': 4,
-        'valid_metric': 'NDCG@10'
-    }
+    'selected_item_features': ['release_year'],
+    'selected_user_features': ['age']
 }
 
 if __name__ == '__main__':
 
-    config = Config(model=SASRecFPlus, dataset='ml-1m', config_dict=parameter_dict)
+    config = Config(model=SASRecFPlus, dataset='ml-1m-modified', config_dict=parameter_dict)
     init_seed(config['seed'], config['reproducibility'])
 
     # logger initialization
