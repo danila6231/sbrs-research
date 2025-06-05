@@ -15,25 +15,27 @@ from recbole.model.abstract_recommender import SequentialRecommender
 from recbole.model.loss import BPRLoss
 from recbole.model.layers import TransformerEncoder, FeatureSeqEmbLayer, ContextSeqEmbAbstractLayer
 
-class UserFeatureSeqEmbLayer(ContextSeqEmbAbstractLayer):
+class UltimateFeatureSeqEmbLayer(ContextSeqEmbAbstractLayer):
     """For feature-rich sequential recommenders, return item features embedding matrices according to
     selected features."""
 
     def __init__(
-        self, dataset, embedding_size, user_selected_features, pooling_mode, device
+        self, dataset, embedding_size, selected_item_features, selected_user_features, pooling_mode, device
     ):
-        super(FeatureSeqEmbLayer, self).__init__()
+        super(UltimateFeatureSeqEmbLayer, self).__init__()
 
         self.device = device
         self.embedding_size = embedding_size
         self.dataset = dataset
         self.user_feat = self.dataset.get_user_feature().to(self.device)
-        print("user_feat", self.user_feat)
-        self.item_feat = None
+        self.item_feat = self.dataset.get_item_feature().to(self.device)
 
-        self.field_names = {"user": user_selected_features}
+        self.field_names = {
+            "user": selected_user_features,
+            "item": selected_item_features
+        }
 
-        self.types = ["user"]
+        self.types = ["user", "item"]
         self.pooling_mode = pooling_mode
         try:
             assert self.pooling_mode in ["mean", "max", "sum"]
@@ -62,12 +64,12 @@ class SASRecFPlus(SequentialRecommender):
         self.hidden_act = config['hidden_act']
         self.layer_norm_eps = config['layer_norm_eps']
 
-        self.selected_features = config['selected_features']
-        self.user_selected_features = config['user_selected_features']
+        self.selected_item_features = config['selected_item_features']
+        self.selected_user_features = config['selected_user_features']
         self.pooling_mode = config['pooling_mode']
         self.device = config['device']
-        self.num_feature_field = len(config['selected_features'])
-        self.num_user_feature_field = len(config['user_selected_features'])
+        self.num_item_feature_field = len(config['selected_item_features'])
+        self.num_user_feature_field = len(config['selected_user_features'])
 
         self.initializer_range = config['initializer_range']
         self.loss_type = config['loss_type']
@@ -78,12 +80,17 @@ class SASRecFPlus(SequentialRecommender):
         
         self.position_embedding = nn.Embedding(self.max_seq_length + 1, self.hidden_size)
         
-        self.feature_embed_layer = FeatureSeqEmbLayer(dataset, self.hidden_size, self.selected_features,
-                                                      self.pooling_mode, self.device)
+        self.feature_embed_layer = UltimateFeatureSeqEmbLayer(
+            dataset,
+            self.hidden_size,
+            self.selected_item_features,
+            self.selected_user_features,
+            self.pooling_mode,
+            self.device
+        )
         
-        print("feature_embed_layer.item_feat", self.feature_embed_layer.item_feat)
-        self.user_feature_embed_layer = UserFeatureSeqEmbLayer(dataset, self.hidden_size, self.user_selected_features,
-                                                      self.pooling_mode, self.device)
+        # self.user_feature_embed_layer = UserFeatureSeqEmbLayer(dataset, self.hidden_size, self.user_selected_features,
+        #                                               self.pooling_mode, self.device)
 
         self.trm_encoder = TransformerEncoder(n_layers=self.n_layers, n_heads=self.n_heads,
                                               hidden_size=self.hidden_size, inner_size=self.inner_size,
@@ -91,8 +98,8 @@ class SASRecFPlus(SequentialRecommender):
                                               attn_dropout_prob=self.attn_dropout_prob,
                                               hidden_act=self.hidden_act, layer_norm_eps=self.layer_norm_eps)
 
-        self.concat_layer = nn.Linear(self.hidden_size * (1 + self.num_feature_field), self.hidden_size)
-
+        self.item_concat_layer = nn.Linear(self.hidden_size * (1 + self.num_item_feature_field), self.hidden_size)
+        self.user_concat_layer = nn.Linear(self.hidden_size * (1 + self.num_user_feature_field), self.hidden_size)
         self.LayerNorm = nn.LayerNorm(self.hidden_size, eps=self.layer_norm_eps)
         self.dropout = nn.Dropout(self.hidden_dropout_prob)
 
@@ -133,57 +140,66 @@ class SASRecFPlus(SequentialRecommender):
         extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
         return extended_attention_mask
 
-
-    def forward(self, user, item_seq, item_seq_len):
-        item_emb = self.item_embedding(item_seq)
-        user_emb = self.user_embedding(user).unsqueeze(1)
-        print(user.unsqueeze(1).shape)
-        print(item_seq.shape)
-        
-
-        # position embedding
-        position_ids = torch.arange(item_seq.size(1), dtype=torch.long, device=item_seq.device)
-        position_ids = position_ids.unsqueeze(0).expand_as(item_seq)
-        position_embedding = self.position_embedding(position_ids)
-
-        sparse_embedding, dense_embedding = self.feature_embed_layer(None, item_seq)
-        sparse_embedding = sparse_embedding['item']
-        dense_embedding = dense_embedding['item']
-        # concat the sparse embedding and float embedding
+    def _concat_features(self, emb, sparse_embedding, dense_embedding):
         feature_table = []
         if sparse_embedding is not None:
             feature_table.append(sparse_embedding)
         if dense_embedding is not None:
             feature_table.append(dense_embedding)
-        
-        print("sparse_embedding", sparse_embedding.shape)
-        print("dense_embedding", dense_embedding)
-        user_sparse_embedding, user_dense_embedding = self.user_feature_embed_layer(None, user.unsqueeze(1))
-        user_sparse_embedding = user_sparse_embedding['user']
-        user_dense_embedding = user_dense_embedding['user']
-        print("user_sparse_embedding", user_sparse_embedding.shape)
-        print("user_sparse_embedding", user_sparse_embedding)
-        print("user_dense_embedding", user_dense_embedding)
-        exit(1)
-        # concat the sparse embedding and float embedding
-        user_feature_table = []
-        if user_sparse_embedding is not None:
-            user_feature_table.append(user_sparse_embedding)
-        if user_dense_embedding is not None:
-            user_feature_table.append(user_dense_embedding)
-
         feature_table = torch.cat(feature_table, dim=-2)
         table_shape = feature_table.shape
         feat_num, embedding_size = table_shape[-2], table_shape[-1]
         feature_emb = feature_table.view(table_shape[:-2] + (feat_num * embedding_size,))
-        input_concat = torch.cat((item_emb, feature_emb), -1)  # [B 1+field_num*H]
+        input_concat = torch.cat((emb, feature_emb), -1)  # [B 1+field_num*H]
+        return input_concat
 
-        input_emb = self.concat_layer(input_concat)
+    def forward(self, user, item_seq, item_seq_len):
+        item_emb = self.item_embedding(item_seq)
+        user_emb = self.user_embedding(user).unsqueeze(1)
+        # print(user.unsqueeze(1).shape)
+        # print(item_seq.shape)
+        
+
+        # position embedding
+        position_ids = torch.arange(item_seq.size(1) + 1, dtype=torch.long, device=item_seq.device)
+        # print("position_ids", position_ids)
+        position_ids = position_ids.unsqueeze(0).expand(item_seq.size(0), item_seq.size(1) + 1)
+        # print("position_ids", position_ids)
+        position_embedding = self.position_embedding(position_ids)
+        # print("position_embedding", position_embedding.shape)
+        # exit()
+
+        sparse_embedding, dense_embedding = self.feature_embed_layer(user.unsqueeze(1), item_seq)
+        item_sparse_embedding = sparse_embedding['item']
+        item_dense_embedding = dense_embedding['item']
+        user_sparse_embedding = sparse_embedding['user']
+        user_dense_embedding = dense_embedding['user']
+        # print("item_sparse_embedding", item_sparse_embedding.shape)
+        # print("item_dense_embedding", item_dense_embedding.shape)
+        # print("user_sparse_embedding", user_sparse_embedding.shape)
+        # print("user_dense_embedding", user_dense_embedding.shape)
+        # concat the sparse embedding and float embedding
+        item_input_concat = self._concat_features(item_emb, item_sparse_embedding, item_dense_embedding)
+        user_input_concat = self._concat_features(user_emb, user_sparse_embedding, user_dense_embedding)
+        
+        # concat the sparse embedding and float embedding
+        # user_feature_table = []
+        # if user_sparse_embedding is not None:
+        #     user_feature_table.append(user_sparse_embedding)
+        # if user_dense_embedding is not None:
+        #     user_feature_table.append(user_dense_embedding)
+
+        item_input_emb = self.item_concat_layer(item_input_concat)
+        user_input_emb = self.user_concat_layer(user_input_concat)
+        
+        input_emb = torch.cat([user_input_emb, item_input_emb], dim=1)
+        
         input_emb = input_emb + position_embedding
         input_emb = self.LayerNorm(input_emb)
         input_emb = self.dropout(input_emb)
 
-        extended_attention_mask = self.get_attention_mask(item_seq)
+        combined_seq = torch.cat([user.unsqueeze(1), item_seq], dim=1)
+        extended_attention_mask = self.get_attention_mask(combined_seq)
         trm_output = self.trm_encoder(input_emb, extended_attention_mask,
                                       output_all_encoded_layers=True)
         output = trm_output[-1]

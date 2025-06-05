@@ -23,18 +23,18 @@ parameter_dict = {
     'attn_dropout_prob': 0.2,
     'enable_amp': True,
     'train_neg_sample_args': None,
-    'seq_len': {'item_id': 200},
+    'MAX_ITEM_LIST_LENGTH': 200,
     'load_col': {
         'inter': ['user_id', 'item_id', 'timestamp'],
         'item': ['item_id', 'genre', 'release_year'],
         'user': ['user_id', 'gender', 'age', 'occupation']
     },
-    'selected_features': ['genre', 'release_year'],
-    'user_selected_features': ['gender', 'age', 'occupation'],
+    'selected_item_features': [],
+    'selected_user_features': ['age'],
     'embedding_size': 64,
     'epochs': 200,
     'train_batch_size': 128,
-    'eval_batch_size': 4096,
+    'eval_batch_size': 128,
     'eval_args': {
         'group_by': 'user',
         'order': 'TO',

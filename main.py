@@ -6,21 +6,32 @@ from models.model import SASRecFPlus
 parameter_dict = {
     'use_gpu': True,
     'state': 'INFO',
-    'hidden_dropout_prob': 0.2,
-    'attention_dropout_prob': 0.2,
     'gpu_id': 0,
+    'show_progress': False,
+    # model parameters
+    'hidden_size': 64,
+    'inner_size': 256,
+    'n_layers': 2,
+    'n_heads': 2,
+    'layer_norm_eps': 1e-12,
+    'initializer_range': 0.02,
+    'hidden_act': 'gelu',
+    'loss_type': 'CE',
+    'pooling_mode': 'sum',
+    'hidden_dropout_prob': 0.2,
+    'attn_dropout_prob': 0.2,
     'enable_amp': True,
     'train_neg_sample_args': None,
-    'seq_len': {'item_id_list': 200},
+    'MAX_ITEM_LIST_LENGTH': 200,
     'load_col': {
         'inter': ['user_id', 'item_id', 'timestamp'],
-        # 'item': ['item_id', 'genre']
+        'item': ['item_id', 'genre', 'release_year']
     },
-    # 'selected_features': ['genre'],
+    'selected_features': ['genre', 'release_year'],
     'embedding_size': 64,
     'epochs': 200,
-    'train_batch_size': 4096,
-    'eval_batch_size': 4096,
+    'train_batch_size': 128,
+    'eval_batch_size': 128,
     'eval_args': {
         'group_by': 'user',
         'order': 'TO',
@@ -33,13 +44,8 @@ parameter_dict = {
     }
 }
 
-model = SASRecFPlus(config=parameter_dict, dataset='ml-1m')
-
 result = run_recbole(
-    model= SASRecFPlus(),
+    model= "SASRecF",
     dataset='ml-1m',
     config_dict=parameter_dict
 )
-
-with open('result.json', 'w') as f:
-    json.dump(result, f, indent=4)

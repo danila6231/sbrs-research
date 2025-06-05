@@ -1,18 +1,18 @@
 {
-    "best_valid_score": 0.534,
+    "best_valid_score": 0.5376,
     "valid_score_bigger": true,
     "best_valid_result": {
-        "recall@10": 0.8051,
-        "mrr@10": 0.534,
-        "ndcg@10": 0.5994,
-        "hit@10": 0.8051,
-        "precision@10": 0.0805
+        "recall@10": 0.8169,
+        "mrr@10": 0.5376,
+        "ndcg@10": 0.6047,
+        "hit@10": 0.8169,
+        "precision@10": 0.0817
     },
     "test_result": {
-        "recall@10": 0.7647,
-        "mrr@10": 0.4952,
-        "ndcg@10": 0.56,
-        "hit@10": 0.7647,
-        "precision@10": 0.0765
+        "recall@10": 0.7762,
+        "mrr@10": 0.5067,
+        "ndcg@10": 0.5716,
+        "hit@10": 0.7762,
+        "precision@10": 0.0776
     }
 }
