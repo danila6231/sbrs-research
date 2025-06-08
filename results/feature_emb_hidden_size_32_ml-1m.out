@@ -1,0 +1,508 @@
+05 Jun 21:44    INFO  
+General Hyper Parameters:
+gpu_id = 0
+use_gpu = True
+seed = 2020
+state = INFO
+reproducibility = True
+data_path = dataset/ml-1m-modified
+checkpoint_dir = saved
+show_progress = False
+save_dataset = False
+dataset_save_path = None
+save_dataloaders = False
+dataloaders_save_path = None
+log_wandb = False
+
+Training Hyper Parameters:
+epochs = 200
+train_batch_size = 128
+learner = adam
+learning_rate = 0.001
+train_neg_sample_args = {'distribution': 'none', 'sample_num': 'none', 'alpha': 'none', 'dynamic': False, 'candidate_num': 0}
+eval_step = 1
+stopping_step = 10
+clip_grad_norm = None
+weight_decay = 0.0
+loss_decimal_place = 4
+
+Evaluation Hyper Parameters:
+eval_args = {'split': {'LS': 'valid_and_test'}, 'order': 'TO', 'group_by': 'user', 'mode': {'valid': 'uni100', 'test': 'uni100'}}
+repeatable = True
+metrics = ['NDCG', 'MRR', 'Hit']
+topk = [10]
+valid_metric = NDCG@10
+valid_metric_bigger = True
+eval_batch_size = 128
+metric_decimal_place = 4
+
+Dataset Hyper Parameters:
+field_separator = 	
+seq_separator =  
+USER_ID_FIELD = user_id
+ITEM_ID_FIELD = item_id
+RATING_FIELD = rating
+TIME_FIELD = timestamp
+seq_len = None
+LABEL_FIELD = label
+threshold = None
+NEG_PREFIX = neg_
+load_col = {'inter': ['user_id', 'item_id', 'timestamp'], 'item': ['item_id', 'genre', 'release_year'], 'user': ['user_id', 'gender', 'age', 'occupation']}
+unload_col = None
+unused_col = None
+additional_feat_suffix = None
+rm_dup_inter = None
+val_interval = None
+filter_inter_by_user_or_item = True
+user_inter_num_interval = [0,inf)
+item_inter_num_interval = [0,inf)
+alias_of_user_id = None
+alias_of_item_id = None
+alias_of_entity_id = None
+alias_of_relation_id = None
+preload_weight = None
+normalize_field = None
+normalize_all = None
+ITEM_LIST_LENGTH_FIELD = item_length
+LIST_SUFFIX = _list
+MAX_ITEM_LIST_LENGTH = 5
+POSITION_FIELD = position_id
+HEAD_ENTITY_ID_FIELD = head_id
+TAIL_ENTITY_ID_FIELD = tail_id
+RELATION_ID_FIELD = relation_id
+ENTITY_ID_FIELD = entity_id
+benchmark_filename = None
+
+Other Hyper Parameters: 
+worker = 0
+wandb_project = recbole
+shuffle = True
+require_pow = False
+enable_amp = True
+enable_scaler = False
+transform = None
+numerical_features = []
+discretization = None
+kg_reverse_r = False
+entity_kg_num_interval = [0,inf)
+relation_kg_num_interval = [0,inf)
+MODEL_TYPE = ModelType.SEQUENTIAL
+use_user_embedding = True
+feature_emb_hidden_size = 32
+embedding_size = 64
+hidden_size = 64
+inner_size = 256
+n_layers = 2
+n_heads = 2
+layer_norm_eps = 1e-12
+initializer_range = 0.02
+hidden_act = gelu
+loss_type = CE
+pooling_mode = sum
+hidden_dropout_prob = 0.2
+attn_dropout_prob = 0.2
+selected_item_features = ['release_year']
+selected_user_features = ['gender', 'occupation']
+MODEL_INPUT_TYPE = InputType.POINTWISE
+eval_type = EvaluatorType.RANKING
+single_spec = True
+local_rank = 0
+device = cuda
+valid_neg_sample_args = {'distribution': 'uniform', 'sample_num': 100}
+test_neg_sample_args = {'distribution': 'uniform', 'sample_num': 100}
+
+
+/gpfs/home/danila/sbrs-research/.venv/lib64/python3.9/site-packages/recbole/data/dataset/dataset.py:648: FutureWarning: A value is trying to be set on a copy of a DataFrame or Series through chained assignment using an inplace method.
+The behavior will change in pandas 3.0. This inplace method will never work because the intermediate object on which we are setting values always behaves as a copy.
+
+For example, when doing 'df[col].method(value, inplace=True)', try using 'df.method({col: value}, inplace=True)' or df[col] = df[col].method(value) instead, to perform the operation inplace on the original object.
+
+
+  feat[field].fillna(value=0, inplace=True)
+/gpfs/home/danila/sbrs-research/.venv/lib64/python3.9/site-packages/recbole/data/dataset/dataset.py:650: FutureWarning: A value is trying to be set on a copy of a DataFrame or Series through chained assignment using an inplace method.
+The behavior will change in pandas 3.0. This inplace method will never work because the intermediate object on which we are setting values always behaves as a copy.
+
+For example, when doing 'df[col].method(value, inplace=True)', try using 'df.method({col: value}, inplace=True)' or df[col] = df[col].method(value) instead, to perform the operation inplace on the original object.
+
+
+  feat[field].fillna(value=feat[field].mean(), inplace=True)
+05 Jun 21:44    INFO  ml-1m-modified
+The number of users: 6041
+Average actions of users: 165.5975165562914
+The number of items: 3884
+Average actions of items: 269.88909875876953
+The number of inters: 1000209
+The sparsity of the dataset: 95.73712398848173%
+Remain Fields: ['user_id', 'item_id', 'timestamp', 'age', 'gender', 'occupation', 'release_year', 'genre']
+05 Jun 21:44    INFO  [Training]: train_batch_size = [128] train_neg_sample_args: [{'distribution': 'none', 'sample_num': 'none', 'alpha': 'none', 'dynamic': False, 'candidate_num': 0}]
+05 Jun 21:44    INFO  [Evaluation]: eval_batch_size = [128] eval_args: [{'split': {'LS': 'valid_and_test'}, 'order': 'TO', 'group_by': 'user', 'mode': {'valid': 'uni100', 'test': 'uni100'}}]
+05 Jun 21:44    INFO  SASRecFPlus(
+  (item_embedding): Embedding(3884, 64, padding_idx=0)
+  (user_embedding): Embedding(6041, 64, padding_idx=0)
+  (position_embedding): Embedding(6, 64)
+  (feature_embed_layer): UltimateFeatureSeqEmbLayer(
+    (token_embedding_table): ModuleDict(
+      (user): FMEmbedding(
+        (embedding): Embedding(25, 32)
+      )
+      (item): FMEmbedding(
+        (embedding): Embedding(82, 32)
+      )
+    )
+    (float_embedding_table): ModuleDict()
+    (token_seq_embedding_table): ModuleDict(
+      (user): ModuleList()
+      (item): ModuleList()
+    )
+    (float_seq_embedding_table): ModuleDict(
+      (user): ModuleList()
+      (item): ModuleList()
+    )
+  )
+  (item_concat_layer): Linear(in_features=96, out_features=64, bias=True)
+  (user_concat_layer): Linear(in_features=128, out_features=64, bias=True)
+  (trm_encoder): TransformerEncoder(
+    (layer): ModuleList(
+      (0-1): 2 x TransformerLayer(
+        (multi_head_attention): MultiHeadAttention(
+          (query): Linear(in_features=64, out_features=64, bias=True)
+          (key): Linear(in_features=64, out_features=64, bias=True)
+          (value): Linear(in_features=64, out_features=64, bias=True)
+          (softmax): Softmax(dim=-1)
+          (attn_dropout): Dropout(p=0.2, inplace=False)
+          (dense): Linear(in_features=64, out_features=64, bias=True)
+          (LayerNorm): LayerNorm((64,), eps=1e-12, elementwise_affine=True)
+          (out_dropout): Dropout(p=0.2, inplace=False)
+        )
+        (feed_forward): FeedForward(
+          (dense_1): Linear(in_features=64, out_features=256, bias=True)
+          (dense_2): Linear(in_features=256, out_features=64, bias=True)
+          (LayerNorm): LayerNorm((64,), eps=1e-12, elementwise_affine=True)
+          (dropout): Dropout(p=0.2, inplace=False)
+        )
+      )
+    )
+  )
+  (LayerNorm): LayerNorm((64,), eps=1e-12, elementwise_affine=True)
+  (dropout): Dropout(p=0.2, inplace=False)
+  (loss_fct): CrossEntropyLoss()
+)
+Trainable parameters: 753568
+/gpfs/home/danila/sbrs-research/.venv/lib64/python3.9/site-packages/recbole/trainer/trainer.py:235: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = amp.GradScaler(enabled=self.enable_scaler)
+05 Jun 21:45    INFO  epoch 0 training [time: 57.13s, train loss: 49642.4169]
+05 Jun 21:45    INFO  epoch 0 evaluating [time: 19.06s, valid_score: 0.510500]
+05 Jun 21:45    INFO  valid result: 
+ndcg@10 : 0.5105    mrr@10 : 0.434    hit@10 : 0.7536
+05 Jun 21:45    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 21:46    INFO  epoch 1 training [time: 56.90s, train loss: 46158.1330]
+05 Jun 21:47    INFO  epoch 1 evaluating [time: 19.03s, valid_score: 0.542600]
+05 Jun 21:47    INFO  valid result: 
+ndcg@10 : 0.5426    mrr@10 : 0.4663    hit@10 : 0.7846
+05 Jun 21:47    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 21:48    INFO  epoch 2 training [time: 57.03s, train loss: 45104.9513]
+05 Jun 21:48    INFO  epoch 2 evaluating [time: 19.10s, valid_score: 0.556400]
+05 Jun 21:48    INFO  valid result: 
+ndcg@10 : 0.5564    mrr@10 : 0.4831    hit@10 : 0.7884
+05 Jun 21:48    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 21:49    INFO  epoch 3 training [time: 57.12s, train loss: 44542.1791]
+05 Jun 21:49    INFO  epoch 3 evaluating [time: 19.11s, valid_score: 0.561700]
+05 Jun 21:49    INFO  valid result: 
+ndcg@10 : 0.5617    mrr@10 : 0.4882    hit@10 : 0.7952
+05 Jun 21:49    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 21:50    INFO  epoch 4 training [time: 57.15s, train loss: 44185.0718]
+05 Jun 21:50    INFO  epoch 4 evaluating [time: 19.10s, valid_score: 0.564200]
+05 Jun 21:50    INFO  valid result: 
+ndcg@10 : 0.5642    mrr@10 : 0.49    hit@10 : 0.7983
+05 Jun 21:50    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 21:51    INFO  epoch 5 training [time: 57.15s, train loss: 43916.5309]
+05 Jun 21:52    INFO  epoch 5 evaluating [time: 19.14s, valid_score: 0.564900]
+05 Jun 21:52    INFO  valid result: 
+ndcg@10 : 0.5649    mrr@10 : 0.4911    hit@10 : 0.7978
+05 Jun 21:52    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 21:53    INFO  epoch 6 training [time: 57.10s, train loss: 43722.1129]
+05 Jun 21:53    INFO  epoch 6 evaluating [time: 19.10s, valid_score: 0.570300]
+05 Jun 21:53    INFO  valid result: 
+ndcg@10 : 0.5703    mrr@10 : 0.4958    hit@10 : 0.8053
+05 Jun 21:53    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 21:54    INFO  epoch 7 training [time: 57.10s, train loss: 43571.7136]
+05 Jun 21:54    INFO  epoch 7 evaluating [time: 19.07s, valid_score: 0.576100]
+05 Jun 21:54    INFO  valid result: 
+ndcg@10 : 0.5761    mrr@10 : 0.5031    hit@10 : 0.8068
+05 Jun 21:54    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 21:55    INFO  epoch 8 training [time: 56.96s, train loss: 43444.9740]
+05 Jun 21:55    INFO  epoch 8 evaluating [time: 19.00s, valid_score: 0.576600]
+05 Jun 21:55    INFO  valid result: 
+ndcg@10 : 0.5766    mrr@10 : 0.5042    hit@10 : 0.8056
+05 Jun 21:55    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 21:56    INFO  epoch 9 training [time: 56.78s, train loss: 43334.6271]
+05 Jun 21:57    INFO  epoch 9 evaluating [time: 18.97s, valid_score: 0.578000]
+05 Jun 21:57    INFO  valid result: 
+ndcg@10 : 0.578    mrr@10 : 0.5055    hit@10 : 0.8068
+05 Jun 21:57    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 21:58    INFO  epoch 10 training [time: 56.74s, train loss: 43228.6740]
+05 Jun 21:58    INFO  epoch 10 evaluating [time: 18.99s, valid_score: 0.582200]
+05 Jun 21:58    INFO  valid result: 
+ndcg@10 : 0.5822    mrr@10 : 0.5101    hit@10 : 0.8096
+05 Jun 21:58    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 21:59    INFO  epoch 11 training [time: 56.95s, train loss: 43163.7127]
+05 Jun 21:59    INFO  epoch 11 evaluating [time: 19.07s, valid_score: 0.581600]
+05 Jun 21:59    INFO  valid result: 
+ndcg@10 : 0.5816    mrr@10 : 0.5085    hit@10 : 0.8123
+05 Jun 22:00    INFO  epoch 12 training [time: 56.96s, train loss: 43091.5223]
+05 Jun 22:01    INFO  epoch 12 evaluating [time: 19.09s, valid_score: 0.580200]
+05 Jun 22:01    INFO  valid result: 
+ndcg@10 : 0.5802    mrr@10 : 0.5068    hit@10 : 0.8111
+05 Jun 22:01    INFO  epoch 13 training [time: 57.04s, train loss: 43021.1067]
+05 Jun 22:02    INFO  epoch 13 evaluating [time: 19.04s, valid_score: 0.576600]
+05 Jun 22:02    INFO  valid result: 
+ndcg@10 : 0.5766    mrr@10 : 0.503    hit@10 : 0.8083
+05 Jun 22:03    INFO  epoch 14 training [time: 56.91s, train loss: 42976.0824]
+05 Jun 22:03    INFO  epoch 14 evaluating [time: 19.01s, valid_score: 0.581900]
+05 Jun 22:03    INFO  valid result: 
+ndcg@10 : 0.5819    mrr@10 : 0.51    hit@10 : 0.8089
+05 Jun 22:04    INFO  epoch 15 training [time: 56.71s, train loss: 42930.1166]
+05 Jun 22:04    INFO  epoch 15 evaluating [time: 18.94s, valid_score: 0.583100]
+05 Jun 22:04    INFO  valid result: 
+ndcg@10 : 0.5831    mrr@10 : 0.51    hit@10 : 0.8139
+05 Jun 22:04    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 22:05    INFO  epoch 16 training [time: 56.59s, train loss: 42881.5662]
+05 Jun 22:06    INFO  epoch 16 evaluating [time: 18.94s, valid_score: 0.579100]
+05 Jun 22:06    INFO  valid result: 
+ndcg@10 : 0.5791    mrr@10 : 0.505    hit@10 : 0.8126
+05 Jun 22:07    INFO  epoch 17 training [time: 56.55s, train loss: 42829.2762]
+05 Jun 22:07    INFO  epoch 17 evaluating [time: 18.91s, valid_score: 0.580000]
+05 Jun 22:07    INFO  valid result: 
+ndcg@10 : 0.58    mrr@10 : 0.5061    hit@10 : 0.8129
+05 Jun 22:08    INFO  epoch 18 training [time: 56.55s, train loss: 42795.0682]
+05 Jun 22:08    INFO  epoch 18 evaluating [time: 18.92s, valid_score: 0.578700]
+05 Jun 22:08    INFO  valid result: 
+ndcg@10 : 0.5787    mrr@10 : 0.5061    hit@10 : 0.8076
+05 Jun 22:09    INFO  epoch 19 training [time: 56.52s, train loss: 42757.3329]
+05 Jun 22:09    INFO  epoch 19 evaluating [time: 18.89s, valid_score: 0.578500]
+05 Jun 22:09    INFO  valid result: 
+ndcg@10 : 0.5785    mrr@10 : 0.5053    hit@10 : 0.8098
+05 Jun 22:10    INFO  epoch 20 training [time: 56.50s, train loss: 42721.9155]
+05 Jun 22:11    INFO  epoch 20 evaluating [time: 18.85s, valid_score: 0.581100]
+05 Jun 22:11    INFO  valid result: 
+ndcg@10 : 0.5811    mrr@10 : 0.5081    hit@10 : 0.8109
+05 Jun 22:12    INFO  epoch 21 training [time: 56.31s, train loss: 42688.5800]
+05 Jun 22:12    INFO  epoch 21 evaluating [time: 18.84s, valid_score: 0.579900]
+05 Jun 22:12    INFO  valid result: 
+ndcg@10 : 0.5799    mrr@10 : 0.5081    hit@10 : 0.8063
+05 Jun 22:13    INFO  epoch 22 training [time: 56.30s, train loss: 42653.6500]
+05 Jun 22:13    INFO  epoch 22 evaluating [time: 18.82s, valid_score: 0.583000]
+05 Jun 22:13    INFO  valid result: 
+ndcg@10 : 0.583    mrr@10 : 0.5102    hit@10 : 0.8126
+05 Jun 22:14    INFO  epoch 23 training [time: 56.15s, train loss: 42627.8546]
+05 Jun 22:14    INFO  epoch 23 evaluating [time: 18.77s, valid_score: 0.581600]
+05 Jun 22:14    INFO  valid result: 
+ndcg@10 : 0.5816    mrr@10 : 0.509    hit@10 : 0.8104
+05 Jun 22:15    INFO  epoch 24 training [time: 56.04s, train loss: 42589.4794]
+05 Jun 22:16    INFO  epoch 24 evaluating [time: 18.77s, valid_score: 0.583200]
+05 Jun 22:16    INFO  valid result: 
+ndcg@10 : 0.5832    mrr@10 : 0.5106    hit@10 : 0.8119
+05 Jun 22:16    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 22:17    INFO  epoch 25 training [time: 56.04s, train loss: 42578.3998]
+05 Jun 22:17    INFO  epoch 25 evaluating [time: 18.76s, valid_score: 0.584100]
+05 Jun 22:17    INFO  valid result: 
+ndcg@10 : 0.5841    mrr@10 : 0.5113    hit@10 : 0.8139
+05 Jun 22:17    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 22:18    INFO  epoch 26 training [time: 56.00s, train loss: 42546.2435]
+05 Jun 22:18    INFO  epoch 26 evaluating [time: 18.79s, valid_score: 0.584600]
+05 Jun 22:18    INFO  valid result: 
+ndcg@10 : 0.5846    mrr@10 : 0.5118    hit@10 : 0.8142
+05 Jun 22:18    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 22:19    INFO  epoch 27 training [time: 56.06s, train loss: 42520.6051]
+05 Jun 22:19    INFO  epoch 27 evaluating [time: 18.80s, valid_score: 0.582900]
+05 Jun 22:19    INFO  valid result: 
+ndcg@10 : 0.5829    mrr@10 : 0.5106    hit@10 : 0.8106
+05 Jun 22:20    INFO  epoch 28 training [time: 56.12s, train loss: 42496.1279]
+05 Jun 22:21    INFO  epoch 28 evaluating [time: 18.78s, valid_score: 0.582700]
+05 Jun 22:21    INFO  valid result: 
+ndcg@10 : 0.5827    mrr@10 : 0.5101    hit@10 : 0.8116
+05 Jun 22:22    INFO  epoch 29 training [time: 56.08s, train loss: 42479.9503]
+05 Jun 22:22    INFO  epoch 29 evaluating [time: 18.76s, valid_score: 0.578100]
+05 Jun 22:22    INFO  valid result: 
+ndcg@10 : 0.5781    mrr@10 : 0.5053    hit@10 : 0.8075
+05 Jun 22:23    INFO  epoch 30 training [time: 55.93s, train loss: 42464.3081]
+05 Jun 22:23    INFO  epoch 30 evaluating [time: 18.72s, valid_score: 0.584100]
+05 Jun 22:23    INFO  valid result: 
+ndcg@10 : 0.5841    mrr@10 : 0.5109    hit@10 : 0.8151
+05 Jun 22:24    INFO  epoch 31 training [time: 55.84s, train loss: 42436.1016]
+05 Jun 22:24    INFO  epoch 31 evaluating [time: 18.66s, valid_score: 0.583600]
+05 Jun 22:24    INFO  valid result: 
+ndcg@10 : 0.5836    mrr@10 : 0.5101    hit@10 : 0.8156
+05 Jun 22:25    INFO  epoch 32 training [time: 55.82s, train loss: 42418.2580]
+05 Jun 22:26    INFO  epoch 32 evaluating [time: 18.76s, valid_score: 0.582800]
+05 Jun 22:26    INFO  valid result: 
+ndcg@10 : 0.5828    mrr@10 : 0.5105    hit@10 : 0.8103
+05 Jun 22:26    INFO  epoch 33 training [time: 56.00s, train loss: 42401.4861]
+05 Jun 22:27    INFO  epoch 33 evaluating [time: 18.80s, valid_score: 0.583000]
+05 Jun 22:27    INFO  valid result: 
+ndcg@10 : 0.583    mrr@10 : 0.5097    hit@10 : 0.8139
+05 Jun 22:28    INFO  epoch 34 training [time: 56.12s, train loss: 42387.9742]
+05 Jun 22:28    INFO  epoch 34 evaluating [time: 18.79s, valid_score: 0.584900]
+05 Jun 22:28    INFO  valid result: 
+ndcg@10 : 0.5849    mrr@10 : 0.5126    hit@10 : 0.8134
+05 Jun 22:28    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 22:29    INFO  epoch 35 training [time: 56.08s, train loss: 42370.6830]
+05 Jun 22:29    INFO  epoch 35 evaluating [time: 18.79s, valid_score: 0.585300]
+05 Jun 22:29    INFO  valid result: 
+ndcg@10 : 0.5853    mrr@10 : 0.514    hit@10 : 0.8103
+05 Jun 22:29    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 22:30    INFO  epoch 36 training [time: 56.13s, train loss: 42354.1865]
+05 Jun 22:31    INFO  epoch 36 evaluating [time: 18.83s, valid_score: 0.587000]
+05 Jun 22:31    INFO  valid result: 
+ndcg@10 : 0.587    mrr@10 : 0.5143    hit@10 : 0.8162
+05 Jun 22:31    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 22:31    INFO  epoch 37 training [time: 56.16s, train loss: 42328.0784]
+05 Jun 22:32    INFO  epoch 37 evaluating [time: 18.84s, valid_score: 0.586600]
+05 Jun 22:32    INFO  valid result: 
+ndcg@10 : 0.5866    mrr@10 : 0.5144    hit@10 : 0.8142
+05 Jun 22:33    INFO  epoch 38 training [time: 56.18s, train loss: 42318.0670]
+05 Jun 22:33    INFO  epoch 38 evaluating [time: 18.85s, valid_score: 0.585500]
+05 Jun 22:33    INFO  valid result: 
+ndcg@10 : 0.5855    mrr@10 : 0.5129    hit@10 : 0.8142
+05 Jun 22:34    INFO  epoch 39 training [time: 56.20s, train loss: 42305.5686]
+05 Jun 22:34    INFO  epoch 39 evaluating [time: 18.84s, valid_score: 0.588900]
+05 Jun 22:34    INFO  valid result: 
+ndcg@10 : 0.5889    mrr@10 : 0.5171    hit@10 : 0.8152
+05 Jun 22:34    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 22:35    INFO  epoch 40 training [time: 56.17s, train loss: 42301.8995]
+05 Jun 22:36    INFO  epoch 40 evaluating [time: 18.81s, valid_score: 0.588100]
+05 Jun 22:36    INFO  valid result: 
+ndcg@10 : 0.5881    mrr@10 : 0.5157    hit@10 : 0.8171
+05 Jun 22:36    INFO  epoch 41 training [time: 56.16s, train loss: 42286.5953]
+05 Jun 22:37    INFO  epoch 41 evaluating [time: 18.80s, valid_score: 0.584000]
+05 Jun 22:37    INFO  valid result: 
+ndcg@10 : 0.584    mrr@10 : 0.512    hit@10 : 0.8109
+05 Jun 22:38    INFO  epoch 42 training [time: 56.18s, train loss: 42278.1453]
+05 Jun 22:38    INFO  epoch 42 evaluating [time: 18.83s, valid_score: 0.586700]
+05 Jun 22:38    INFO  valid result: 
+ndcg@10 : 0.5867    mrr@10 : 0.515    hit@10 : 0.8121
+05 Jun 22:39    INFO  epoch 43 training [time: 56.24s, train loss: 42268.8749]
+05 Jun 22:39    INFO  epoch 43 evaluating [time: 18.83s, valid_score: 0.589300]
+05 Jun 22:39    INFO  valid result: 
+ndcg@10 : 0.5893    mrr@10 : 0.5182    hit@10 : 0.8136
+05 Jun 22:39    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 22:40    INFO  epoch 44 training [time: 56.21s, train loss: 42256.5475]
+05 Jun 22:41    INFO  epoch 44 evaluating [time: 18.84s, valid_score: 0.587400]
+05 Jun 22:41    INFO  valid result: 
+ndcg@10 : 0.5874    mrr@10 : 0.5151    hit@10 : 0.8154
+05 Jun 22:41    INFO  epoch 45 training [time: 56.18s, train loss: 42242.6311]
+05 Jun 22:42    INFO  epoch 45 evaluating [time: 18.83s, valid_score: 0.587000]
+05 Jun 22:42    INFO  valid result: 
+ndcg@10 : 0.587    mrr@10 : 0.5152    hit@10 : 0.8139
+05 Jun 22:43    INFO  epoch 46 training [time: 56.14s, train loss: 42231.9511]
+05 Jun 22:43    INFO  epoch 46 evaluating [time: 18.80s, valid_score: 0.587600]
+05 Jun 22:43    INFO  valid result: 
+ndcg@10 : 0.5876    mrr@10 : 0.516    hit@10 : 0.8132
+05 Jun 22:44    INFO  epoch 47 training [time: 56.20s, train loss: 42215.1898]
+05 Jun 22:44    INFO  epoch 47 evaluating [time: 18.81s, valid_score: 0.588700]
+05 Jun 22:44    INFO  valid result: 
+ndcg@10 : 0.5887    mrr@10 : 0.5164    hit@10 : 0.8169
+05 Jun 22:45    INFO  epoch 48 training [time: 56.01s, train loss: 42215.7797]
+05 Jun 22:46    INFO  epoch 48 evaluating [time: 18.76s, valid_score: 0.586400]
+05 Jun 22:46    INFO  valid result: 
+ndcg@10 : 0.5864    mrr@10 : 0.5137    hit@10 : 0.8164
+05 Jun 22:46    INFO  epoch 49 training [time: 55.92s, train loss: 42204.2365]
+05 Jun 22:47    INFO  epoch 49 evaluating [time: 18.72s, valid_score: 0.583500]
+05 Jun 22:47    INFO  valid result: 
+ndcg@10 : 0.5835    mrr@10 : 0.5101    hit@10 : 0.8156
+05 Jun 22:48    INFO  epoch 50 training [time: 55.92s, train loss: 42194.5094]
+05 Jun 22:48    INFO  epoch 50 evaluating [time: 18.77s, valid_score: 0.585800]
+05 Jun 22:48    INFO  valid result: 
+ndcg@10 : 0.5858    mrr@10 : 0.5141    hit@10 : 0.8114
+05 Jun 22:49    INFO  epoch 51 training [time: 56.05s, train loss: 42178.7698]
+05 Jun 22:49    INFO  epoch 51 evaluating [time: 18.75s, valid_score: 0.590200]
+05 Jun 22:49    INFO  valid result: 
+ndcg@10 : 0.5902    mrr@10 : 0.5174    hit@10 : 0.8197
+05 Jun 22:49    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 22:50    INFO  epoch 52 training [time: 55.97s, train loss: 42175.6736]
+05 Jun 22:51    INFO  epoch 52 evaluating [time: 18.70s, valid_score: 0.586800]
+05 Jun 22:51    INFO  valid result: 
+ndcg@10 : 0.5868    mrr@10 : 0.5149    hit@10 : 0.8134
+05 Jun 22:51    INFO  epoch 53 training [time: 55.87s, train loss: 42172.3824]
+05 Jun 22:52    INFO  epoch 53 evaluating [time: 18.69s, valid_score: 0.587500]
+05 Jun 22:52    INFO  valid result: 
+ndcg@10 : 0.5875    mrr@10 : 0.5155    hit@10 : 0.8141
+05 Jun 22:53    INFO  epoch 54 training [time: 55.93s, train loss: 42155.4871]
+05 Jun 22:53    INFO  epoch 54 evaluating [time: 18.77s, valid_score: 0.585300]
+05 Jun 22:53    INFO  valid result: 
+ndcg@10 : 0.5853    mrr@10 : 0.5125    hit@10 : 0.8146
+05 Jun 22:54    INFO  epoch 55 training [time: 56.10s, train loss: 42146.7805]
+05 Jun 22:54    INFO  epoch 55 evaluating [time: 18.78s, valid_score: 0.586400]
+05 Jun 22:54    INFO  valid result: 
+ndcg@10 : 0.5864    mrr@10 : 0.514    hit@10 : 0.8147
+05 Jun 22:55    INFO  epoch 56 training [time: 56.13s, train loss: 42129.6374]
+05 Jun 22:56    INFO  epoch 56 evaluating [time: 18.81s, valid_score: 0.582700]
+05 Jun 22:56    INFO  valid result: 
+ndcg@10 : 0.5827    mrr@10 : 0.5096    hit@10 : 0.8131
+05 Jun 22:56    INFO  epoch 57 training [time: 56.12s, train loss: 42127.2932]
+05 Jun 22:57    INFO  epoch 57 evaluating [time: 18.81s, valid_score: 0.586200]
+05 Jun 22:57    INFO  valid result: 
+ndcg@10 : 0.5862    mrr@10 : 0.5147    hit@10 : 0.8108
+05 Jun 22:58    INFO  epoch 58 training [time: 56.16s, train loss: 42139.7860]
+05 Jun 22:58    INFO  epoch 58 evaluating [time: 18.79s, valid_score: 0.584000]
+05 Jun 22:58    INFO  valid result: 
+ndcg@10 : 0.584    mrr@10 : 0.5109    hit@10 : 0.8139
+05 Jun 22:59    INFO  epoch 59 training [time: 56.12s, train loss: 42115.1051]
+05 Jun 22:59    INFO  epoch 59 evaluating [time: 18.78s, valid_score: 0.588700]
+05 Jun 22:59    INFO  valid result: 
+ndcg@10 : 0.5887    mrr@10 : 0.516    hit@10 : 0.8179
+05 Jun 23:00    INFO  epoch 60 training [time: 56.08s, train loss: 42109.3307]
+05 Jun 23:01    INFO  epoch 60 evaluating [time: 18.80s, valid_score: 0.591200]
+05 Jun 23:01    INFO  valid result: 
+ndcg@10 : 0.5912    mrr@10 : 0.52    hit@10 : 0.8152
+05 Jun 23:01    INFO  Saving current: saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 23:01    INFO  epoch 61 training [time: 56.15s, train loss: 42100.6656]
+05 Jun 23:02    INFO  epoch 61 evaluating [time: 18.81s, valid_score: 0.586200]
+05 Jun 23:02    INFO  valid result: 
+ndcg@10 : 0.5862    mrr@10 : 0.5158    hit@10 : 0.8081
+05 Jun 23:03    INFO  epoch 62 training [time: 56.08s, train loss: 42089.5398]
+05 Jun 23:03    INFO  epoch 62 evaluating [time: 18.80s, valid_score: 0.589000]
+05 Jun 23:03    INFO  valid result: 
+ndcg@10 : 0.589    mrr@10 : 0.5174    hit@10 : 0.8151
+05 Jun 23:04    INFO  epoch 63 training [time: 56.03s, train loss: 42090.3207]
+05 Jun 23:04    INFO  epoch 63 evaluating [time: 18.77s, valid_score: 0.588400]
+05 Jun 23:04    INFO  valid result: 
+ndcg@10 : 0.5884    mrr@10 : 0.5163    hit@10 : 0.8157
+05 Jun 23:05    INFO  epoch 64 training [time: 56.02s, train loss: 42077.8020]
+05 Jun 23:06    INFO  epoch 64 evaluating [time: 18.77s, valid_score: 0.587200]
+05 Jun 23:06    INFO  valid result: 
+ndcg@10 : 0.5872    mrr@10 : 0.5161    hit@10 : 0.8108
+05 Jun 23:06    INFO  epoch 65 training [time: 56.05s, train loss: 42063.6451]
+05 Jun 23:07    INFO  epoch 65 evaluating [time: 18.74s, valid_score: 0.586000]
+05 Jun 23:07    INFO  valid result: 
+ndcg@10 : 0.586    mrr@10 : 0.5154    hit@10 : 0.8079
+05 Jun 23:08    INFO  epoch 66 training [time: 55.88s, train loss: 42057.9940]
+05 Jun 23:08    INFO  epoch 66 evaluating [time: 18.73s, valid_score: 0.584700]
+05 Jun 23:08    INFO  valid result: 
+ndcg@10 : 0.5847    mrr@10 : 0.5109    hit@10 : 0.8169
+05 Jun 23:09    INFO  epoch 67 training [time: 55.85s, train loss: 42055.8905]
+05 Jun 23:09    INFO  epoch 67 evaluating [time: 18.67s, valid_score: 0.586300]
+05 Jun 23:09    INFO  valid result: 
+ndcg@10 : 0.5863    mrr@10 : 0.5141    hit@10 : 0.8142
+05 Jun 23:10    INFO  epoch 68 training [time: 55.81s, train loss: 42039.6582]
+05 Jun 23:10    INFO  epoch 68 evaluating [time: 18.68s, valid_score: 0.587600]
+05 Jun 23:10    INFO  valid result: 
+ndcg@10 : 0.5876    mrr@10 : 0.5154    hit@10 : 0.8147
+05 Jun 23:11    INFO  epoch 69 training [time: 55.79s, train loss: 42035.7914]
+05 Jun 23:12    INFO  epoch 69 evaluating [time: 18.67s, valid_score: 0.585800]
+05 Jun 23:12    INFO  valid result: 
+ndcg@10 : 0.5858    mrr@10 : 0.5135    hit@10 : 0.8132
+05 Jun 23:13    INFO  epoch 70 training [time: 55.84s, train loss: 42028.7491]
+05 Jun 23:13    INFO  epoch 70 evaluating [time: 18.68s, valid_score: 0.585000]
+05 Jun 23:13    INFO  valid result: 
+ndcg@10 : 0.585    mrr@10 : 0.5132    hit@10 : 0.8119
+05 Jun 23:14    INFO  epoch 71 training [time: 55.77s, train loss: 42020.8287]
+05 Jun 23:14    INFO  epoch 71 evaluating [time: 18.70s, valid_score: 0.588700]
+05 Jun 23:14    INFO  valid result: 
+ndcg@10 : 0.5887    mrr@10 : 0.5175    hit@10 : 0.8134
+05 Jun 23:14    INFO  Finished training, best eval result in epoch 60
+/gpfs/home/danila/sbrs-research/.venv/lib64/python3.9/site-packages/recbole/trainer/trainer.py:583: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_file, map_location=self.device)
+05 Jun 23:14    INFO  Loading model structure and parameters from saved/SASRecFPlus-Jun-05-2025_21-44-23.pth
+05 Jun 23:15    INFO  best valid result: OrderedDict([('ndcg@10', 0.5912), ('mrr@10', 0.52), ('hit@10', 0.8152)])
+05 Jun 23:15    INFO  test result: OrderedDict([('ndcg@10', 0.5533), ('mrr@10', 0.481), ('hit@10', 0.7823)])

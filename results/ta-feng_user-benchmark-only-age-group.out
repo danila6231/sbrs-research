@@ -1,0 +1,263 @@
+06 Jun 18:44    INFO  
+General Hyper Parameters:
+gpu_id = 0
+use_gpu = True
+seed = 2020
+state = INFO
+reproducibility = True
+data_path = dataset/ta-feng
+checkpoint_dir = saved
+show_progress = False
+save_dataset = False
+dataset_save_path = None
+save_dataloaders = False
+dataloaders_save_path = None
+log_wandb = False
+
+Training Hyper Parameters:
+epochs = 200
+train_batch_size = 128
+learner = adam
+learning_rate = 0.001
+train_neg_sample_args = {'distribution': 'none', 'sample_num': 'none', 'alpha': 'none', 'dynamic': False, 'candidate_num': 0}
+eval_step = 1
+stopping_step = 10
+clip_grad_norm = None
+weight_decay = 0.0
+loss_decimal_place = 4
+
+Evaluation Hyper Parameters:
+eval_args = {'split': {'LS': 'valid_and_test'}, 'order': 'TO', 'group_by': 'user', 'mode': {'valid': 'uni100', 'test': 'uni100'}}
+repeatable = True
+metrics = ['NDCG', 'MRR', 'Hit']
+topk = [10]
+valid_metric = NDCG@10
+valid_metric_bigger = True
+eval_batch_size = 128
+metric_decimal_place = 4
+
+Dataset Hyper Parameters:
+field_separator = 	
+seq_separator =  
+USER_ID_FIELD = customer_id
+ITEM_ID_FIELD = product_id
+RATING_FIELD = rating
+TIME_FIELD = transaction_date
+seq_len = None
+LABEL_FIELD = label
+threshold = None
+NEG_PREFIX = neg_
+load_col = {'inter': ['transaction_date', 'customer_id', 'product_id'], 'user': ['customer_id', 'age_group', 'pin_code']}
+unload_col = None
+unused_col = None
+additional_feat_suffix = None
+rm_dup_inter = None
+val_interval = None
+filter_inter_by_user_or_item = True
+user_inter_num_interval = [0,inf)
+item_inter_num_interval = [0,inf)
+alias_of_user_id = None
+alias_of_item_id = None
+alias_of_entity_id = None
+alias_of_relation_id = None
+preload_weight = None
+normalize_field = None
+normalize_all = None
+ITEM_LIST_LENGTH_FIELD = item_length
+LIST_SUFFIX = _list
+MAX_ITEM_LIST_LENGTH = 40
+POSITION_FIELD = position_id
+HEAD_ENTITY_ID_FIELD = head_id
+TAIL_ENTITY_ID_FIELD = tail_id
+RELATION_ID_FIELD = relation_id
+ENTITY_ID_FIELD = entity_id
+benchmark_filename = None
+
+Other Hyper Parameters: 
+worker = 0
+wandb_project = recbole
+shuffle = True
+require_pow = False
+enable_amp = True
+enable_scaler = False
+transform = None
+numerical_features = []
+discretization = None
+kg_reverse_r = False
+entity_kg_num_interval = [0,inf)
+relation_kg_num_interval = [0,inf)
+MODEL_TYPE = ModelType.SEQUENTIAL
+use_user_embedding = True
+feature_emb_hidden_size = 64
+embedding_size = 64
+hidden_size = 64
+inner_size = 256
+n_layers = 2
+n_heads = 2
+layer_norm_eps = 1e-12
+initializer_range = 0.02
+hidden_act = gelu
+loss_type = CE
+pooling_mode = sum
+hidden_dropout_prob = 0.2
+attn_dropout_prob = 0.2
+selected_item_features = []
+selected_user_features = ['age_group']
+MODEL_INPUT_TYPE = InputType.POINTWISE
+eval_type = EvaluatorType.RANKING
+single_spec = True
+local_rank = 0
+device = cuda
+valid_neg_sample_args = {'distribution': 'uniform', 'sample_num': 100}
+test_neg_sample_args = {'distribution': 'uniform', 'sample_num': 100}
+
+
+/gpfs/home/danila/sbrs-research/.venv/lib64/python3.9/site-packages/recbole/data/dataset/dataset.py:650: FutureWarning: A value is trying to be set on a copy of a DataFrame or Series through chained assignment using an inplace method.
+The behavior will change in pandas 3.0. This inplace method will never work because the intermediate object on which we are setting values always behaves as a copy.
+
+For example, when doing 'df[col].method(value, inplace=True)', try using 'df.method({col: value}, inplace=True)' or df[col] = df[col].method(value) instead, to perform the operation inplace on the original object.
+
+
+  feat[field].fillna(value=feat[field].mean(), inplace=True)
+/gpfs/home/danila/sbrs-research/.venv/lib64/python3.9/site-packages/recbole/data/dataset/dataset.py:648: FutureWarning: A value is trying to be set on a copy of a DataFrame or Series through chained assignment using an inplace method.
+The behavior will change in pandas 3.0. This inplace method will never work because the intermediate object on which we are setting values always behaves as a copy.
+
+For example, when doing 'df[col].method(value, inplace=True)', try using 'df.method({col: value}, inplace=True)' or df[col] = df[col].method(value) instead, to perform the operation inplace on the original object.
+
+
+  feat[field].fillna(value=0, inplace=True)
+06 Jun 18:44    INFO  ta-feng
+The number of users: 32267
+Average actions of users: 25.343736440835553
+The number of items: 23813
+Average actions of items: 34.34155047875021
+The number of inters: 817741
+The sparsity of the dataset: 99.8935751438182%
+Remain Fields: ['transaction_date', 'customer_id', 'product_id', 'age_group', 'pin_code']
+06 Jun 18:45    INFO  [Training]: train_batch_size = [128] train_neg_sample_args: [{'distribution': 'none', 'sample_num': 'none', 'alpha': 'none', 'dynamic': False, 'candidate_num': 0}]
+06 Jun 18:45    INFO  [Evaluation]: eval_batch_size = [128] eval_args: [{'split': {'LS': 'valid_and_test'}, 'order': 'TO', 'group_by': 'user', 'mode': {'valid': 'uni100', 'test': 'uni100'}}]
+06 Jun 18:45    INFO  SASRecFPlus(
+  (item_embedding): Embedding(23813, 64, padding_idx=0)
+  (user_embedding): Embedding(32267, 64, padding_idx=0)
+  (position_embedding): Embedding(41, 64)
+  (feature_embed_layer): UltimateFeatureSeqEmbLayer(
+    (token_embedding_table): ModuleDict(
+      (user): FMEmbedding(
+        (embedding): Embedding(12, 64)
+      )
+    )
+    (float_embedding_table): ModuleDict()
+    (token_seq_embedding_table): ModuleDict(
+      (user): ModuleList()
+      (item): ModuleList()
+    )
+    (float_seq_embedding_table): ModuleDict(
+      (user): ModuleList()
+      (item): ModuleList()
+    )
+  )
+  (user_concat_layer): Linear(in_features=128, out_features=64, bias=True)
+  (trm_encoder): TransformerEncoder(
+    (layer): ModuleList(
+      (0-1): 2 x TransformerLayer(
+        (multi_head_attention): MultiHeadAttention(
+          (query): Linear(in_features=64, out_features=64, bias=True)
+          (key): Linear(in_features=64, out_features=64, bias=True)
+          (value): Linear(in_features=64, out_features=64, bias=True)
+          (softmax): Softmax(dim=-1)
+          (attn_dropout): Dropout(p=0.2, inplace=False)
+          (dense): Linear(in_features=64, out_features=64, bias=True)
+          (LayerNorm): LayerNorm((64,), eps=1e-12, elementwise_affine=True)
+          (out_dropout): Dropout(p=0.2, inplace=False)
+        )
+        (feed_forward): FeedForward(
+          (dense_1): Linear(in_features=64, out_features=256, bias=True)
+          (dense_2): Linear(in_features=256, out_features=64, bias=True)
+          (LayerNorm): LayerNorm((64,), eps=1e-12, elementwise_affine=True)
+          (dropout): Dropout(p=0.2, inplace=False)
+        )
+      )
+    )
+  )
+  (LayerNorm): LayerNorm((64,), eps=1e-12, elementwise_affine=True)
+  (dropout): Dropout(p=0.2, inplace=False)
+  (loss_fct): CrossEntropyLoss()
+)
+Trainable parameters: 3700864
+/gpfs/home/danila/sbrs-research/.venv/lib64/python3.9/site-packages/recbole/trainer/trainer.py:235: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = amp.GradScaler(enabled=self.enable_scaler)
+06 Jun 18:46    INFO  epoch 0 training [time: 49.29s, train loss: 50037.2746]
+06 Jun 18:47    INFO  epoch 0 evaluating [time: 107.36s, valid_score: 0.430400]
+06 Jun 18:47    INFO  valid result: 
+ndcg@10 : 0.4304    mrr@10 : 0.3611    hit@10 : 0.6543
+06 Jun 18:47    INFO  Saving current: saved/SASRecFPlus-Jun-06-2025_18-45-08.pth
+06 Jun 18:48    INFO  epoch 1 training [time: 48.90s, train loss: 48770.0336]
+06 Jun 18:50    INFO  epoch 1 evaluating [time: 107.54s, valid_score: 0.458500]
+06 Jun 18:50    INFO  valid result: 
+ndcg@10 : 0.4585    mrr@10 : 0.3887    hit@10 : 0.6833
+06 Jun 18:50    INFO  Saving current: saved/SASRecFPlus-Jun-06-2025_18-45-08.pth
+06 Jun 18:51    INFO  epoch 2 training [time: 48.79s, train loss: 47776.8390]
+06 Jun 18:53    INFO  epoch 2 evaluating [time: 107.57s, valid_score: 0.470800]
+06 Jun 18:53    INFO  valid result: 
+ndcg@10 : 0.4708    mrr@10 : 0.4017    hit@10 : 0.693
+06 Jun 18:53    INFO  Saving current: saved/SASRecFPlus-Jun-06-2025_18-45-08.pth
+06 Jun 18:53    INFO  epoch 3 training [time: 48.86s, train loss: 46955.7927]
+06 Jun 18:55    INFO  epoch 3 evaluating [time: 107.51s, valid_score: 0.472600]
+06 Jun 18:55    INFO  valid result: 
+ndcg@10 : 0.4726    mrr@10 : 0.4045    hit@10 : 0.6913
+06 Jun 18:55    INFO  Saving current: saved/SASRecFPlus-Jun-06-2025_18-45-08.pth
+06 Jun 18:56    INFO  epoch 4 training [time: 48.90s, train loss: 46240.2735]
+06 Jun 18:58    INFO  epoch 4 evaluating [time: 107.53s, valid_score: 0.474900]
+06 Jun 18:58    INFO  valid result: 
+ndcg@10 : 0.4749    mrr@10 : 0.4074    hit@10 : 0.6919
+06 Jun 18:58    INFO  Saving current: saved/SASRecFPlus-Jun-06-2025_18-45-08.pth
+06 Jun 18:59    INFO  epoch 5 training [time: 48.85s, train loss: 45615.1456]
+06 Jun 19:00    INFO  epoch 5 evaluating [time: 107.46s, valid_score: 0.472700]
+06 Jun 19:00    INFO  valid result: 
+ndcg@10 : 0.4727    mrr@10 : 0.4057    hit@10 : 0.6881
+06 Jun 19:01    INFO  epoch 6 training [time: 48.93s, train loss: 45069.3151]
+06 Jun 19:03    INFO  epoch 6 evaluating [time: 107.55s, valid_score: 0.470000]
+06 Jun 19:03    INFO  valid result: 
+ndcg@10 : 0.47    mrr@10 : 0.4036    hit@10 : 0.6833
+06 Jun 19:04    INFO  epoch 7 training [time: 48.90s, train loss: 44582.2144]
+06 Jun 19:06    INFO  epoch 7 evaluating [time: 107.59s, valid_score: 0.472200]
+06 Jun 19:06    INFO  valid result: 
+ndcg@10 : 0.4722    mrr@10 : 0.4062    hit@10 : 0.6847
+06 Jun 19:06    INFO  epoch 8 training [time: 48.88s, train loss: 44195.1261]
+06 Jun 19:08    INFO  epoch 8 evaluating [time: 107.56s, valid_score: 0.471400]
+06 Jun 19:08    INFO  valid result: 
+ndcg@10 : 0.4714    mrr@10 : 0.4057    hit@10 : 0.6824
+06 Jun 19:09    INFO  epoch 9 training [time: 48.88s, train loss: 43837.1773]
+06 Jun 19:11    INFO  epoch 9 evaluating [time: 107.68s, valid_score: 0.469400]
+06 Jun 19:11    INFO  valid result: 
+ndcg@10 : 0.4694    mrr@10 : 0.4041    hit@10 : 0.6794
+06 Jun 19:12    INFO  epoch 10 training [time: 49.12s, train loss: 43545.4901]
+06 Jun 19:13    INFO  epoch 10 evaluating [time: 107.97s, valid_score: 0.469700]
+06 Jun 19:13    INFO  valid result: 
+ndcg@10 : 0.4697    mrr@10 : 0.404    hit@10 : 0.6809
+06 Jun 19:14    INFO  epoch 11 training [time: 49.16s, train loss: 43279.6679]
+06 Jun 19:16    INFO  epoch 11 evaluating [time: 107.70s, valid_score: 0.466700]
+06 Jun 19:16    INFO  valid result: 
+ndcg@10 : 0.4667    mrr@10 : 0.4011    hit@10 : 0.6776
+06 Jun 19:17    INFO  epoch 12 training [time: 48.68s, train loss: 43030.8469]
+06 Jun 19:19    INFO  epoch 12 evaluating [time: 107.02s, valid_score: 0.466500]
+06 Jun 19:19    INFO  valid result: 
+ndcg@10 : 0.4665    mrr@10 : 0.4013    hit@10 : 0.676
+06 Jun 19:20    INFO  epoch 13 training [time: 48.30s, train loss: 42797.4644]
+06 Jun 19:21    INFO  epoch 13 evaluating [time: 107.83s, valid_score: 0.468000]
+06 Jun 19:21    INFO  valid result: 
+ndcg@10 : 0.468    mrr@10 : 0.4034    hit@10 : 0.6755
+06 Jun 19:22    INFO  epoch 14 training [time: 48.75s, train loss: 42583.3827]
+06 Jun 19:24    INFO  epoch 14 evaluating [time: 107.82s, valid_score: 0.468300]
+06 Jun 19:24    INFO  valid result: 
+ndcg@10 : 0.4683    mrr@10 : 0.4043    hit@10 : 0.6742
+06 Jun 19:25    INFO  epoch 15 training [time: 48.79s, train loss: 42377.4640]
+06 Jun 19:27    INFO  epoch 15 evaluating [time: 107.48s, valid_score: 0.465400]
+06 Jun 19:27    INFO  valid result: 
+ndcg@10 : 0.4654    mrr@10 : 0.4005    hit@10 : 0.6741
+06 Jun 19:27    INFO  Finished training, best eval result in epoch 4
+/gpfs/home/danila/sbrs-research/.venv/lib64/python3.9/site-packages/recbole/trainer/trainer.py:583: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_file, map_location=self.device)
+06 Jun 19:27    INFO  Loading model structure and parameters from saved/SASRecFPlus-Jun-06-2025_18-45-08.pth
+06 Jun 19:28    INFO  best valid result: OrderedDict([('ndcg@10', 0.4749), ('mrr@10', 0.4074), ('hit@10', 0.6919)])
+06 Jun 19:28    INFO  test result: OrderedDict([('ndcg@10', 0.4794), ('mrr@10', 0.4129), ('hit@10', 0.6929)])

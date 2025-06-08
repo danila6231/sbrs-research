@@ -15,11 +15,13 @@ parameter_dict = {
     # DATA
     'field_separator': '\t',
     'load_col': {
-        'inter': ['user_id', 'item_id', 'timestamp'],
-        'item': ['item_id', 'genre', 'release_year'],
-        'user': ['user_id', 'gender', 'age', 'occupation']
+        'inter': ['transaction_date', 'customer_id', 'product_id'],
+        'user': ['customer_id', 'age_group', 'pin_code']
     },
-    'MAX_ITEM_LIST_LENGTH': 50,
+    'MAX_ITEM_LIST_LENGTH': 40,
+    'USER_ID_FIELD': 'customer_id',
+    'ITEM_ID_FIELD': 'product_id',
+    'TIME_FIELD': 'transaction_date',
     # TRAINING
     'epochs': 200,
     'train_batch_size': 128,
@@ -27,6 +29,12 @@ parameter_dict = {
     'enable_amp': True,
     # EVALUATION
 
+    # 'eval_args': {
+    #     'group_by': 'user',
+    #     'order': 'TO',
+    #     'split': {'RS': [0.8, 0.1, 0.1]},
+    #     'mode': 'full'
+    # },
     'eval_args': {
         'group_by': 'user',
         'order': 'TO',
@@ -41,6 +49,7 @@ parameter_dict = {
     # MODEL
     'embedding_size': 64,
     'hidden_size': 64,
+    'feature_emb_hidden_size': 32,
     'inner_size': 256,
     'n_layers': 2,
     'n_heads': 2,
@@ -51,12 +60,10 @@ parameter_dict = {
     'pooling_mode': 'sum',
     'hidden_dropout_prob': 0.2,
     'attn_dropout_prob': 0.2,
-    'selected_item_features': ['release_year'],
-    'selected_user_features': ['age']
 }
 
 result = run_recbole(
     model= "SASRec",
-    dataset='ml-1m',
+    dataset='ta-feng',
     config_dict=parameter_dict
 )

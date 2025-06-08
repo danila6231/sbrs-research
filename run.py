@@ -17,11 +17,20 @@ parameter_dict = {
     # DATA
     'field_separator': '\t',
     'load_col': {
-        'inter': ['user_id', 'item_id', 'timestamp'],
-        'item': ['item_id', 'genre', 'release_year'],
-        'user': ['user_id', 'gender', 'age', 'occupation']
+        'inter': ['transaction_date', 'customer_id', 'product_id'],
+        'user': ['customer_id', 'age_group', 'pin_code']
     },
-    'MAX_ITEM_LIST_LENGTH': 50,
+    'MAX_ITEM_LIST_LENGTH': 40,
+    'USER_ID_FIELD': 'customer_id',
+    'ITEM_ID_FIELD': 'product_id',
+    'TIME_FIELD': 'transaction_date',
+    # 'field_separator': '\t',
+    # 'load_col': {
+    #     'inter': ['user_id', 'item_id', 'timestamp'],
+    #     'item': ['item_id', 'genre', 'release_year'],
+    #     'user': ['user_id', 'gender', 'age', 'occupation']
+    # },
+    # 'MAX_ITEM_LIST_LENGTH': 50,
     # TRAINING
     'epochs': 200,
     'train_batch_size': 128,
@@ -41,6 +50,8 @@ parameter_dict = {
     'metric_decimal_place': 4,
     'eval_batch_size': 128,
     # MODEL
+    'use_user_embedding': True,
+    'feature_emb_hidden_size': 64,
     'embedding_size': 64,
     'hidden_size': 64,
     'inner_size': 256,
@@ -53,13 +64,13 @@ parameter_dict = {
     'pooling_mode': 'sum',
     'hidden_dropout_prob': 0.2,
     'attn_dropout_prob': 0.2,
-    'selected_item_features': ['release_year'],
-    'selected_user_features': ['age']
+    'selected_item_features': [],
+    'selected_user_features': ['age_group', 'pin_code']
 }
 
 if __name__ == '__main__':
 
-    config = Config(model=SASRecFPlus, dataset='ml-1m-modified', config_dict=parameter_dict)
+    config = Config(model=SASRecFPlus, dataset='ta-feng', config_dict=parameter_dict)
     init_seed(config['seed'], config['reproducibility'])
 
     # logger initialization
